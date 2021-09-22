@@ -62,5 +62,6 @@ Assertions.assertTrue(checker.check(one));
 ```
 
 ## Todo
+- [ ] Debug tools (peek tokens, trace, etc.)
 - [ ] Propagation strategy: should we fail? where?
 - [ ] Dependent checks: make check depend on others.

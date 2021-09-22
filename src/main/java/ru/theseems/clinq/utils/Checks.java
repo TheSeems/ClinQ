@@ -1,10 +1,13 @@
 package ru.theseems.clinq.utils;
 
 import ru.theseems.clinq.api.Check;
+import ru.theseems.clinq.api.Checker;
+import ru.theseems.clinq.api.ClinQ;
+import ru.theseems.clinq.impl.checker.QueueChecker;
 
 import java.util.Arrays;
 
-public class Checks {
+public final class Checks {
 	public static <T> Check<T> truth() {
 		return value -> true;
 	}

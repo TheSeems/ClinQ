@@ -8,10 +8,10 @@ import ru.theseems.clinq.impl.token.TokenVisitor;
 import java.util.Optional;
 
 @SuppressWarnings("unchecked")
-public class SimpleCheckerTokenVisitor implements TokenVisitor {
+public class QueueCheckerTokenVisitor implements TokenVisitor {
 	private Object currentValue;
 
-	public SimpleCheckerTokenVisitor(Object currentValue) {
+	public QueueCheckerTokenVisitor(Object currentValue) {
 		this.currentValue = currentValue;
 	}
 

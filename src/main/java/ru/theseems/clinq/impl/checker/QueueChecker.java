@@ -1,7 +1,8 @@
 package ru.theseems.clinq.impl.checker;
 
 import lombok.Getter;
-import ru.theseems.clinq.impl.compiler.SimpleTokenCompiler;
+import ru.theseems.clinq.impl.compiler.QueueTokenCompiler;
+import ru.theseems.clinq.impl.compiler.TokenCompiler;
 import ru.theseems.clinq.impl.token.MapToken;
 import ru.theseems.clinq.api.Check;
 import ru.theseems.clinq.api.Checker;
@@ -16,7 +17,7 @@ import java.util.Queue;
 import java.util.function.Consumer;
 
 // TODO: break down to: lexer, semanter (optional), translator
-public class SimpleChecker<InputType, CheckType> extends Checker<InputType, CheckType> {
+public class QueueChecker<InputType, CheckType> extends Checker<InputType, CheckType> {
 	private Queue<Token> tokens = new ArrayDeque<>();
 
 	// Lazy for caching if we want to reuse our checker
@@ -30,8 +31,9 @@ public class SimpleChecker<InputType, CheckType> extends Checker<InputType, Chec
 	}
 
 	@Override
-	public <PipeCheckType> Checker<InputType, CheckType> with(MapPipe<CheckType, PipeCheckType> pipe, Consumer<Checker<InputType, PipeCheckType>> tweak) {
-		SimpleChecker<InputType, CheckType> newChecker = new SimpleChecker<>();
+	public <PipeCheckType> Checker<InputType, CheckType> with(MapPipe<CheckType, PipeCheckType> pipe,
+	                                                          Consumer<Checker<InputType, PipeCheckType>> tweak) {
+		QueueChecker<InputType, CheckType> newChecker = new QueueChecker<>();
 		var mapped = newChecker.map(pipe);
 		tweak.accept(mapped);
 
@@ -40,10 +42,26 @@ public class SimpleChecker<InputType, CheckType> extends Checker<InputType, Chec
 	}
 
 	@Override
+	public <PipeCheckType> Checker<InputType, CheckType> mapCheck(MapPipe<CheckType, PipeCheckType> pipe,
+	                                                              Check<PipeCheckType> check) {
+		QueueChecker<InputType, CheckType> newChecker = new QueueChecker<>();
+		var mapped = newChecker.map(pipe).with(check);
+
+		tokens.add(new CheckToken<>(mapped::check));
+		return this;
+	}
+
+	@Override
+	public Checker<InputType, CheckType> when(Check<CheckType> condition, Checker<CheckType, CheckType> tweak) {
+		tokens.add(new CheckToken<CheckType>((value) -> !condition.check(value) || tweak.check(value)));
+		return this;
+	}
+
+	@Override
 	public <PipeCheckType> Checker<InputType, PipeCheckType> map(MapPipe<CheckType, PipeCheckType> pipe) {
 		tokens.add(new MapToken<>(pipe));
 
-		SimpleChecker<InputType, PipeCheckType> newChecker = new SimpleChecker<>();
+		QueueChecker<InputType, PipeCheckType> newChecker = new QueueChecker<>();
 		newChecker.tokens = tokens;
 		return newChecker;
 	}
@@ -51,7 +69,7 @@ public class SimpleChecker<InputType, CheckType> extends Checker<InputType, Chec
 	public <PipeCheckType> Checker<InputType, PipeCheckType> pipe(OptionalPipe<CheckType, PipeCheckType> pipe) {
 		tokens.add(new PipeToken<>(pipe));
 
-		SimpleChecker<InputType, PipeCheckType> newChecker = new SimpleChecker<>();
+		QueueChecker<InputType, PipeCheckType> newChecker = new QueueChecker<>();
 		newChecker.tokens = tokens;
 		return newChecker;
 	}
@@ -61,10 +79,15 @@ public class SimpleChecker<InputType, CheckType> extends Checker<InputType, Chec
 		return getCompiled().check(value);
 	}
 
+	@Override
+	public TokenCompiler compiler() {
+		return null;
+	}
+
 	// TODO: add propagation strategy and some more fantastic stuff
 	private Check<InputType> compile() {
-		return SimpleTokenCompiler.of(tokens)
-			.settings(settings -> settings.tokenCountLimit(1000))
+		return QueueTokenCompiler.of(tokens)
+			.settings(it -> it.tokenCountLimit(1000))
 			.compile();
 	}
 }
