@@ -1,9 +1,12 @@
 package ru.vbc.clinq.impl.checker;
 
+import lombok.Getter;
 import ru.vbc.clinq.api.Check;
 import ru.vbc.clinq.api.Checker;
 import ru.vbc.clinq.api.MapPipe;
 import ru.vbc.clinq.api.OptionalPipe;
+import ru.vbc.clinq.impl.compiler.SimpleTokenCompiler;
+import ru.vbc.clinq.impl.compiler.TokenCompilerSettings;
 import ru.vbc.clinq.impl.token.CheckToken;
 import ru.vbc.clinq.impl.token.MapToken;
 import ru.vbc.clinq.impl.token.PipeToken;
@@ -12,8 +15,13 @@ import ru.vbc.clinq.impl.token.Token;
 import java.util.ArrayDeque;
 import java.util.Queue;
 
+// TODO: break down to: lexer, semanter (optional), translator
 public class SimpleChecker<InputType, CheckType> extends Checker<InputType, CheckType> {
 	private Queue<Token> tokens = new ArrayDeque<>();
+
+	// Lazy for caching if we want to reuse our checker
+	@Getter(lazy = true)
+	private final Check<InputType> compiled = compile();
 
 	@Override
 	public Checker<InputType, CheckType> with(Check<CheckType> check) {
@@ -38,10 +46,15 @@ public class SimpleChecker<InputType, CheckType> extends Checker<InputType, Chec
 		return newChecker;
 	}
 
-	// TODO: add propagation strategy and some more fantastic stuff
 	@Override
 	public boolean check(InputType value) {
-		var visitor = new SimpleCheckerTokenVisitor(value);
-		return tokens.stream().allMatch(token -> token.accept(visitor));
+		return getCompiled().check(value);
+	}
+
+	// TODO: add propagation strategy and some more fantastic stuff
+	private Check<InputType> compile() {
+		return SimpleTokenCompiler.of(tokens)
+			.settings(settings -> settings.tokenCountLimit(1000))
+			.compile();
 	}
 }
