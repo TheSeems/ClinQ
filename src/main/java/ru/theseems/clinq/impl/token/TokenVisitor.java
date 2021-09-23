@@ -1,4 +1,4 @@
-package ru.vbc.clinq.impl.token;
+package ru.theseems.clinq.impl.token;
 
 public interface TokenVisitor {
 	<T> boolean visit(CheckToken<T> token);

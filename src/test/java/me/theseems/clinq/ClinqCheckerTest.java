@@ -3,16 +3,14 @@ package me.theseems.clinq;
 import me.theseems.clinq.dto.SampleDto;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import ru.vbc.clinq.api.Checker;
-import ru.vbc.clinq.api.Clinq;
-import ru.vbc.clinq.checks.IntegerIs;
-import ru.vbc.clinq.checks.StringMatches;
+import ru.theseems.clinq.api.ClinQ;
+import ru.theseems.clinq.checks.IntegerIs;
+import ru.theseems.clinq.checks.StringMatches;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public class ClinqCheckerTest {
 	@Test
@@ -23,7 +21,7 @@ public class ClinqCheckerTest {
 		);
 
 		var checker =
-			Clinq.checker(Integer.class)
+			ClinQ.checker(Integer.class)
 				.and(i -> i % 2 == 0, i -> i % 3 == 0)
 				.map(Double::valueOf)
 				.map(d -> d / 2.0)
@@ -37,7 +35,7 @@ public class ClinqCheckerTest {
 	@Test
 	public void test1_Stress() {
 		var checker =
-			Clinq.checker(Integer.class)
+			ClinQ.checker(Integer.class)
 				.and(i -> i % 2 == 0, i -> i % 3 == 0);
 
 		for (int i = 0; i < 10_000_000; i++) {
@@ -51,7 +49,7 @@ public class ClinqCheckerTest {
 
 	@Test
 	public void test2() {
-		var checker = Clinq.checker(String.class)
+		var checker = ClinQ.checker(String.class)
 			.with(str -> !str.isEmpty())
 			.with(StringMatches.pattern("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}"))
 			.map(value -> value.split("@")[0])
@@ -66,7 +64,7 @@ public class ClinqCheckerTest {
 	@Test
 	public void test3() {
 		var checker =
-			Clinq.checker(Integer.class)
+			ClinQ.checker(Integer.class)
 				// a prime lesser than 100
 				.and(IntegerIs.prime(), i -> i < 100)
 				.with(i -> i % 2 != 0);
@@ -84,7 +82,7 @@ public class ClinqCheckerTest {
 	@Test
 	public void test4() {
 		var checker =
-			Clinq.checker(SampleDto.class)
+			ClinQ.checker(SampleDto.class)
 				.with(Objects::nonNull)
 				.with(SampleDto::getName, nameChecker ->
 					nameChecker

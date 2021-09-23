@@ -1,4 +1,4 @@
-package ru.vbc.clinq.api;
+package ru.theseems.clinq.api;
 
 import java.util.Optional;
 

@@ -1,9 +1,9 @@
-package ru.vbc.clinq.impl.checker;
+package ru.theseems.clinq.impl.checker;
 
-import ru.vbc.clinq.impl.token.CheckToken;
-import ru.vbc.clinq.impl.token.MapToken;
-import ru.vbc.clinq.impl.token.PipeToken;
-import ru.vbc.clinq.impl.token.TokenVisitor;
+import ru.theseems.clinq.impl.token.CheckToken;
+import ru.theseems.clinq.impl.token.MapToken;
+import ru.theseems.clinq.impl.token.PipeToken;
+import ru.theseems.clinq.impl.token.TokenVisitor;
 
 import java.util.Optional;
 

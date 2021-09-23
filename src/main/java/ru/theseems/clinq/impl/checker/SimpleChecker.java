@@ -1,15 +1,15 @@
-package ru.vbc.clinq.impl.checker;
+package ru.theseems.clinq.impl.checker;
 
 import lombok.Getter;
-import ru.vbc.clinq.api.Check;
-import ru.vbc.clinq.api.Checker;
-import ru.vbc.clinq.api.MapPipe;
-import ru.vbc.clinq.api.OptionalPipe;
-import ru.vbc.clinq.impl.compiler.SimpleTokenCompiler;
-import ru.vbc.clinq.impl.token.CheckToken;
-import ru.vbc.clinq.impl.token.MapToken;
-import ru.vbc.clinq.impl.token.PipeToken;
-import ru.vbc.clinq.impl.token.Token;
+import ru.theseems.clinq.impl.compiler.SimpleTokenCompiler;
+import ru.theseems.clinq.impl.token.MapToken;
+import ru.theseems.clinq.api.Check;
+import ru.theseems.clinq.api.Checker;
+import ru.theseems.clinq.api.MapPipe;
+import ru.theseems.clinq.api.OptionalPipe;
+import ru.theseems.clinq.impl.token.CheckToken;
+import ru.theseems.clinq.impl.token.PipeToken;
+import ru.theseems.clinq.impl.token.Token;
 
 import java.util.ArrayDeque;
 import java.util.Queue;

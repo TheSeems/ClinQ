@@ -1,6 +1,6 @@
-package ru.vbc.clinq.utils;
+package ru.theseems.clinq.utils;
 
-import ru.vbc.clinq.api.Check;
+import ru.theseems.clinq.api.Check;
 
 import java.util.Arrays;
 

@@ -1,6 +1,6 @@
-package ru.vbc.clinq.impl.token;
+package ru.theseems.clinq.impl.token;
 
-import ru.vbc.clinq.api.MapPipe;
+import ru.theseems.clinq.api.MapPipe;
 
 public class MapToken<T, V> implements Token {
 	private final MapPipe<T, V> mapPipe;

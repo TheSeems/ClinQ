@@ -1,6 +1,6 @@
-package ru.vbc.clinq.impl.token;
+package ru.theseems.clinq.impl.token;
 
-import ru.vbc.clinq.api.OptionalPipe;
+import ru.theseems.clinq.api.OptionalPipe;
 
 public class PipeToken<T, V> implements Token {
 	private final OptionalPipe<T, V> pipe;

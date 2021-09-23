@@ -1,8 +1,8 @@
-package ru.vbc.clinq.impl.compiler;
+package ru.theseems.clinq.impl.compiler;
 
-import ru.vbc.clinq.api.Check;
-import ru.vbc.clinq.impl.checker.SimpleCheckerTokenVisitor;
-import ru.vbc.clinq.impl.token.Token;
+import ru.theseems.clinq.impl.checker.SimpleCheckerTokenVisitor;
+import ru.theseems.clinq.api.Check;
+import ru.theseems.clinq.impl.token.Token;
 
 import java.util.Queue;
 import java.util.function.Consumer;

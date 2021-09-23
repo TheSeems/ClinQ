@@ -1,6 +1,6 @@
-package ru.vbc.clinq.impl.token;
+package ru.theseems.clinq.impl.token;
 
-import ru.vbc.clinq.api.Check;
+import ru.theseems.clinq.api.Check;
 
 public class CheckToken<T> implements Token {
 	private final Check<T> check;

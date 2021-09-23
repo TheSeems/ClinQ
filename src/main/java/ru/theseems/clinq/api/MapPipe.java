@@ -1,4 +1,4 @@
-package ru.vbc.clinq.api;
+package ru.theseems.clinq.api;
 
 public interface MapPipe<T, V> {
 	V produce(T value);

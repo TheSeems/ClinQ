@@ -1,6 +1,6 @@
-package ru.vbc.clinq.api;
+package ru.theseems.clinq.api;
 
-import ru.vbc.clinq.utils.Checks;
+import ru.theseems.clinq.utils.Checks;
 
 import java.util.function.Consumer;
 

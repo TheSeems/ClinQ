@@ -1,6 +1,6 @@
-package ru.vbc.clinq.checks;
+package ru.theseems.clinq.checks;
 
-import ru.vbc.clinq.api.Check;
+import ru.theseems.clinq.api.Check;
 
 import java.util.regex.Pattern;
 

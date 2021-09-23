@@ -1,4 +1,4 @@
-package ru.vbc.clinq.impl.compiler;
+package ru.theseems.clinq.impl.compiler;
 
 public final class TokenCompilerSettings {
 	// Package-private for compiler accessibility
