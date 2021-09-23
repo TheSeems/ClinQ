@@ -6,7 +6,6 @@ import ru.vbc.clinq.api.Checker;
 import ru.vbc.clinq.api.MapPipe;
 import ru.vbc.clinq.api.OptionalPipe;
 import ru.vbc.clinq.impl.compiler.SimpleTokenCompiler;
-import ru.vbc.clinq.impl.compiler.TokenCompilerSettings;
 import ru.vbc.clinq.impl.token.CheckToken;
 import ru.vbc.clinq.impl.token.MapToken;
 import ru.vbc.clinq.impl.token.PipeToken;
@@ -14,6 +13,7 @@ import ru.vbc.clinq.impl.token.Token;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
+import java.util.function.Consumer;
 
 // TODO: break down to: lexer, semanter (optional), translator
 public class SimpleChecker<InputType, CheckType> extends Checker<InputType, CheckType> {
@@ -26,6 +26,16 @@ public class SimpleChecker<InputType, CheckType> extends Checker<InputType, Chec
 	@Override
 	public Checker<InputType, CheckType> with(Check<CheckType> check) {
 		tokens.add(new CheckToken<>(check));
+		return this;
+	}
+
+	@Override
+	public <PipeCheckType> Checker<InputType, CheckType> with(MapPipe<CheckType, PipeCheckType> pipe, Consumer<Checker<InputType, PipeCheckType>> tweak) {
+		SimpleChecker<InputType, CheckType> newChecker = new SimpleChecker<>();
+		var mapped = newChecker.map(pipe);
+		tweak.accept(mapped);
+
+		tokens.add(new CheckToken<>(mapped::check));
 		return this;
 	}
 

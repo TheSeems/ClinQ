@@ -17,4 +17,11 @@ public class MapToken<T, V> implements Token {
 	public boolean accept(TokenVisitor visitor) {
 		return visitor.visit(this);
 	}
+
+	@Override
+	public String toString() {
+		return "MapToken{" +
+			"mapPipe=" + mapPipe +
+			'}';
+	}
 }
