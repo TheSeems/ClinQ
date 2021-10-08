@@ -62,7 +62,7 @@ Assertions.assertTrue(checker.check(one));
 ```
 
 ## Use it
-Currently, this library can be fetched via JitPack:
+Currently, this library can be fetched via JitPack:  
 [![](https://jitpack.io/v/theseems/ClinQ.svg)](https://jitpack.io/#theseems/ClinQ)
 
 Here are specified instructions for Gradle (for maven etc. they can be found at JitPack - just click on the badge above)  
