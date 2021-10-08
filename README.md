@@ -61,6 +61,29 @@ SampleDto one = new SampleDto("hi!", List.of(1, 2, 3));
 Assertions.assertTrue(checker.check(one));
 ```
 
+## Use it
+Currently, this library can be fetched via JitPack:
+[![](https://jitpack.io/v/theseems/ClinQ.svg)](https://jitpack.io/#theseems/ClinQ)
+
+Here are specified instructions for Gradle (for maven etc. they can be found at JitPack - just click on the badge above)  
+
+Step 1. Add the JitPack repository to your build file
+```groovy
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
+	}
+}
+```
+
+Step 2. Add the dependency
+```groovy
+dependencies {
+        implementation 'com.github.theseems:ClinQ:v1.0-SNAPSHOT'
+}
+```
+
 ## Todo
 - [ ] Debug tools (peek tokens, trace, etc.)
 - [ ] Propagation strategy: should we fail? where?
