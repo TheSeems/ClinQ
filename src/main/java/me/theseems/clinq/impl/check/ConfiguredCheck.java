@@ -7,14 +7,6 @@ public class ConfiguredCheck<T> implements Check<T> {
 	private final CheckSettings settings;
 	private final Check<T> wrapped;
 
-	public static <T> Check<T> configurable(Check<T> wrapped) {
-		if (wrapped instanceof ConfiguredCheck) {
-			return wrapped;
-		}
-
-		return new ConfiguredCheck<>(wrapped);
-	}
-
 	public static <T> Check<T> configured(Check<T> wrapped, CheckSettings settings) {
 		if (wrapped instanceof ConfiguredCheck) {
 			settings = CheckSettings.merge(((ConfiguredCheck<T>) wrapped).settings, settings);
@@ -24,20 +16,18 @@ public class ConfiguredCheck<T> implements Check<T> {
 	}
 
 	public static <T> Check<T> message(Check<T> wrapped, String message) {
-		return ConfiguredCheck.configured(wrapped, new CheckSettings().setErrorMessage(message));
+		return ConfiguredCheck.configured(wrapped,
+			new CheckSettings().setErrorMessage(message));
 	}
 
 	public static <T> Check<T> blockMessage(Check<T> wrapped, String message) {
-		return ConfiguredCheck.configured(wrapped, new CheckSettings().setErrorMessage(message).setPropagate(false));
+		return ConfiguredCheck.configured(wrapped,
+			new CheckSettings().setErrorMessage(message).setPropagate(false));
 	}
 
 	public static <T> Check<T> block(Check<T> wrapped) {
-		return ConfiguredCheck.configured(wrapped, new CheckSettings().setPropagate(false));
-	}
-
-	private ConfiguredCheck(Check<T> wrapped) {
-		this.wrapped = wrapped;
-		settings = new CheckSettings();
+		return ConfiguredCheck.configured(wrapped,
+			new CheckSettings().setPropagate(false));
 	}
 
 	public ConfiguredCheck(Check<T> wrapped, CheckSettings settings) {

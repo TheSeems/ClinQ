@@ -13,6 +13,8 @@ public class CheckSettings {
 		CheckSettings result = new CheckSettings();
 		if (weak.errorMessage == null) {
 			result.errorMessage = strong.errorMessage;
+		} else {
+			result.errorMessage = weak.getErrorMessage();
 		}
 
 		result.propagate = strong.propagate;

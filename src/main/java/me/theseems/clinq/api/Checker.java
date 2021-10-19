@@ -37,6 +37,16 @@ public abstract class Checker<InputType, CheckType> {
 		return mapCheck(pipe, ConfiguredCheck.message(check, message));
 	}
 
+	public <PipeCheckType> Checker<InputType, CheckType>
+	mapCheckBlocking(MapPipe<CheckType, PipeCheckType> pipe, Check<PipeCheckType> check) {
+		return mapCheck(pipe, ConfiguredCheck.block(check));
+	}
+
+	public <PipeCheckType> Checker<InputType, CheckType>
+	mapCheckBlocking(String message, MapPipe<CheckType, PipeCheckType> pipe, Check<PipeCheckType> check) {
+		return mapCheck(pipe, ConfiguredCheck.blockMessage(check, message));
+	}
+
 	public abstract Checker<InputType, CheckType>
 	when(Check<CheckType> condition, Checker<CheckType, CheckType> tweak);
 
@@ -94,12 +104,20 @@ public abstract class Checker<InputType, CheckType> {
 		return with(Objects::nonNull);
 	}
 
+	public Checker<InputType, CheckType> notNull(String message) {
+		return with(ConfiguredCheck.message(Objects::nonNull, message));
+	}
+
 	public <PipeCheckType> Checker<InputType, CheckType> mapNotNull(MapPipe<CheckType, PipeCheckType> pipe) {
 		return mapCheck(pipe, Objects::nonNull);
 	}
 
+	public <PipeCheckType> Checker<InputType, CheckType> mapNotNull(String message, MapPipe<CheckType, PipeCheckType> pipe) {
+		return mapCheck(pipe, ConfiguredCheck.message(Objects::nonNull, message));
+	}
+
 	public Checker<InputType, CheckType> when(Check<CheckType> condition, Consumer<Checker<CheckType, CheckType>> tweak) {
-		var anotherChecker = ClinQ.<CheckType>checker();
+		var anotherChecker = Clinq.<CheckType>checker();
 		tweak.accept(anotherChecker);
 		return when(condition, anotherChecker);
 	}

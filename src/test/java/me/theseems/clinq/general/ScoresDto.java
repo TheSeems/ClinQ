@@ -1,4 +1,4 @@
-package me.theseems.clinq.dto;
+package me.theseems.clinq.general;
 
 import java.util.List;
 

@@ -5,52 +5,46 @@ import me.theseems.clinq.checks.Args;
 import me.theseems.clinq.dto.BenefitDto;
 import me.theseems.clinq.test.utils.CheckUtils;
 import me.theseems.clinq.api.Checker;
-import me.theseems.clinq.api.ClinQ;
+import me.theseems.clinq.api.Clinq;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Objects;
 
 public class BenefitDtoClinQ {
 	public static final BenefitDtoClinQ INSTANCE = new BenefitDtoClinQ();
+	private static Checker<BenefitDto, BenefitDto> checker;
 
 	private BenefitDtoClinQ() {
-		checker = ClinQ.<BenefitDto>checker()
+		checker = Clinq.<BenefitDto>checker()
 			.notNull()
-			.error("Нет данных")
+				.error("No data")
 			.mapNotNull(this::amount)
-			.error("Сумма комиссии должна быть указана")
+				.error("Benefit amount must be specified")
 			.mapNotNull(this::dateFrom)
-			.error("Дата \"от\" должна быть указана")
+				.error("Date \"from\" must be specified")
 			.mapNotNull(this::dateTo)
-			.error("Дата \"до\" должна быть указана")
+				.error("Date \"to\" must be specified")
 			.mapCheck(this::amount, this::greaterThanZero)
-			.error("Сумма комиссии должна быть больше нуля")
+				.error("Benefit amount must be greater than zero")
 			.and(dto -> CheckUtils.isBefore(dto.getValidFrom(), dto.getValidTo()))
-			.error("Даты расположены в неправильном порядке")
+				.error("Dates \"from\" and \"to\" are specified in an incorrect order")
 			.and(dto -> Args.onlyOneNonNull(dto.getBenefitPercent(), dto.getBenefitAmount()))
-			.error("Должен быть указан либо процент по комиссии, либо сумма комиссии");
+				.error("You must specify either benefit percent or benefit amount");
 
 		checker.when(dto -> dto.getBenefitAmount() != null, amountChecker -> amountChecker
-			.mapCheck(this::commissionPercent, Objects::isNull)
-			.error("Процент по комиссии не должен быть указан, если указана сумма")
-			.mapCheck(this::commissionAmount, this::greaterThanZero)
-			.error("Сумма комиссии должна быть больше нуля")
+			.mapCheck(this::benefitAmount, this::greaterThanZero)
+				.error("Benefit amount must be greater than zero")
 		);
 
 		checker.when(dto -> dto.getBenefitPercent() != null, percentChecker -> percentChecker
-			.mapCheck(this::commissionAmount, Objects::isNull)
-			.error("Сумма комиссии не должна быть указана, если указан процент")
-			.mapCheck(this::commissionPercent, this::greaterThanZero)
-			.error("Процент по комиссии должен быть больше нуля")
+			.mapCheck(this::benefitPercent, this::greaterThanZero)
+				.error("Benefit percent must be greater than zero")
 		);
 	}
 
 	public boolean check(BenefitDto commissionCalculateInDto, CheckErrors errors) {
 		return checker.check(commissionCalculateInDto, errors);
 	}
-
-	private static Checker<BenefitDto, BenefitDto> checker;
 
 	private LocalDate dateFrom(BenefitDto dto) {
 		return dto.getValidFrom();
@@ -64,11 +58,11 @@ public class BenefitDtoClinQ {
 		return dto.getSum();
 	}
 
-	private BigDecimal commissionPercent(BenefitDto dto) {
+	private BigDecimal benefitPercent(BenefitDto dto) {
 		return dto.getBenefitPercent();
 	}
 
-	private BigDecimal commissionAmount(BenefitDto dto) {
+	private BigDecimal benefitAmount(BenefitDto dto) {
 		return dto.getBenefitAmount();
 	}
 

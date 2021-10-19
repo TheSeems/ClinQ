@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class IgnoreCheckErrors implements CheckErrors {
-
 	@Override
 	public void add(Error error) {
 	}

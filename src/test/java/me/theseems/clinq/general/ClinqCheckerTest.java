@@ -1,10 +1,9 @@
-package me.theseems.clinq;
+package me.theseems.clinq.general;
 
-import me.theseems.clinq.dto.ScoresDto;
 import me.theseems.clinq.test.TestCheckErrors;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import me.theseems.clinq.api.ClinQ;
+import me.theseems.clinq.api.Clinq;
 import me.theseems.clinq.checks.IntegerIs;
 import me.theseems.clinq.checks.StringMatches;
 
@@ -22,7 +21,7 @@ public class ClinqCheckerTest {
 		);
 
 		var checker =
-			ClinQ.checker(Integer.class)
+			Clinq.checker(Integer.class)
 				.and(i -> i % 2 == 0, i -> i % 3 == 0)
 				.map(Double::valueOf)
 				.map(d -> d / 2.0)
@@ -36,7 +35,7 @@ public class ClinqCheckerTest {
 	@Test
 	public void validateInteger_WithLogicalCheckCombination_Mapping_Pipe_Stress_Success() {
 		var checker =
-			ClinQ.checker(Integer.class)
+			Clinq.checker(Integer.class)
 				.and(i -> i % 2 == 0, i -> i % 3 == 0);
 
 		for (int i = 0; i < 10_000_000; i++) {
@@ -52,7 +51,7 @@ public class ClinqCheckerTest {
 	public void validateInteger_WithExternalCheck_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
 		var checker =
-			ClinQ.checker(Integer.class)
+			Clinq.checker(Integer.class)
 				// a prime lesser than 100
 				.and("Input should be prime less than 100", IntegerIs.prime(), i -> i < 100)
 				.with("Input should not be divisible by 2", i -> i % 2 != 0);
@@ -77,7 +76,7 @@ public class ClinqCheckerTest {
 	@Test
 	public void validateString_WithExternalCheck_Mapping_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
-		var checker = ClinQ.checker(String.class)
+		var checker = Clinq.checker(String.class)
 			.withBlocking("Input is empty", str -> !str.isEmpty())
 			.withBlocking("Not an email", StringMatches.pattern("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}"))
 			.map(value -> value.split("@")[0])
@@ -99,8 +98,8 @@ public class ClinqCheckerTest {
 	public void validateDto_WithNestedCheckers_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
 		var checker =
-			ClinQ.checker(ScoresDto.class)
-				.with(Objects::nonNull)
+			Clinq.checker(ScoresDto.class)
+				.notNull("No data")
 				.with(ScoresDto::getName, nameChecker -> nameChecker
 					.with("Name is null", Objects::nonNull)
 					.with("Name should be bigger than 2 symbols",
@@ -119,29 +118,35 @@ public class ClinqCheckerTest {
 
 		ScoresDto shortName = new ScoresDto("a", List.of(1, 2, 3));
 		Assertions.assertFalse(checker.check(shortName, errors));
-		errors.assertSame(List.of("Name should be bigger than 2 symbols", "Name length should be equal to scores size"));
+		errors.assertSame(List.of(
+			"Name should be bigger than 2 symbols",
+			"Name length should be equal to scores size"));
 
 		ScoresDto shortScores = new ScoresDto("abc", List.of(1, 2));
 		Assertions.assertFalse(checker.check(shortScores, errors));
-		errors.assertSame(List.of("There should be at least 3 scores", "Name length should be equal to scores size"));
+		errors.assertSame(List.of(
+			"There should be at least 3 scores",
+			"Name length should be equal to scores size"));
 
 		ScoresDto negativeScores = new ScoresDto("abc", List.of(1, 2, 3, -1));
 		Assertions.assertFalse(checker.check(negativeScores, errors));
-		errors.assertSame(List.of("All scores should be positive", "Name length should be equal to scores size"));
+		errors.assertSame(List.of(
+			"All scores should be positive",
+			"Name length should be equal to scores size"));
 	}
 
 	@Test
 	public void validateDto_WithConditionalChecks_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
 		var shortNameChecker =
-			ClinQ.checker(String.class)
+			Clinq.checker(String.class)
 				.with("Short name should start with 's'",
 					name -> name.startsWith("s"))
 				.mapCheck("Short name's first char should be digit",
 					name -> name.charAt(1), Character::isDigit);
 
 		var mediumNameChecker =
-			ClinQ.checker(String.class)
+			Clinq.checker(String.class)
 				.with("Medium name should start with 'm'",
 					name -> name.startsWith("m"))
 				.mapCheck("Medium name's first char should be digit",
@@ -149,7 +154,7 @@ public class ClinqCheckerTest {
 				.mapCheck("Medium name's second char should be letter",
 					name -> name.charAt(2), Character::isLetter);
 
-		var dtoChecker = ClinQ.checker(ScoresDto.class);
+		var dtoChecker = Clinq.checker(ScoresDto.class);
 
 		// Name checking attached
 		dtoChecker.with(ScoresDto::getName, it ->
@@ -174,14 +179,14 @@ public class ClinqCheckerTest {
 	public void validateDto_WithConditionalChecks_ErrorToken_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
 		var shortNameChecker =
-			ClinQ.checker(String.class)
+			Clinq.checker(String.class)
 				.with(name -> name.startsWith("s"))
 				.error("Short name should start with 's'")
 				.mapCheck(name -> name.charAt(1), Character::isDigit)
 				.error("Short name's first char should be digit");
 
 		var mediumNameChecker =
-			ClinQ.checker(String.class)
+			Clinq.checker(String.class)
 				.with(name -> name.startsWith("m"))
 				.error("Medium name should start with 'm'")
 				.mapCheck(name -> name.charAt(1), Character::isDigit)
@@ -189,7 +194,7 @@ public class ClinqCheckerTest {
 				.mapCheck(name -> name.charAt(2), Character::isLetter)
 				.error("Medium name's second char should be letter");
 
-		var dtoChecker = ClinQ.checker(ScoresDto.class);
+		var dtoChecker = Clinq.checker(ScoresDto.class);
 
 		// Name checking attached
 		dtoChecker.with(ScoresDto::getName, it ->

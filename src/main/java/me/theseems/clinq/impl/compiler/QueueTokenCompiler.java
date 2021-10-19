@@ -2,6 +2,7 @@ package me.theseems.clinq.impl.compiler;
 
 import me.theseems.clinq.api.compiler.CompiledCheck;
 import me.theseems.clinq.api.compiler.TokenCompiler;
+import me.theseems.clinq.api.compiler.TokenCompilerSettings;
 import me.theseems.clinq.api.compiler.error.Error;
 import me.theseems.clinq.api.compiler.exception.CompileError;
 import me.theseems.clinq.impl.check.ConfiguredCheck;
@@ -11,7 +12,6 @@ import me.theseems.clinq.impl.token.CheckToken;
 import me.theseems.clinq.impl.token.ErrorToken;
 import me.theseems.clinq.impl.token.MapCheckToken;
 import me.theseems.clinq.impl.token.Token;
-import me.theseems.clinq.api.compiler.TokenCompilerSettings;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -39,17 +39,20 @@ public class QueueTokenCompiler implements TokenCompiler {
 	}
 
 	private <T> CheckToken<T> attach(CheckToken<T> token, List<Token> tokens) {
+		CheckToken<T> result = token;
 		for (Token special : tokens) {
 			if (special instanceof ErrorToken) {
-				return new CheckToken<>(ConfiguredCheck.message(token.getCheck(), ((ErrorToken) special).getMessage()));
+				result = new CheckToken<>(ConfiguredCheck.message(result.getCheck(),
+					((ErrorToken) special).getMessage()));
 			} else if (special instanceof BlockToken) {
-				return new CheckToken<>(ConfiguredCheck.block(token.getCheck()));
+				result = new CheckToken<>(ConfiguredCheck.block(result.getCheck()));
 			} else {
-				throw new IllegalStateException("Special token should be either ErrorToken or BlockToken. Given: " + special);
+				throw new IllegalStateException(
+					"Special token should be either ErrorToken or BlockToken. Given: " + special);
 			}
 		}
 
-		return token;
+		return result;
 	}
 
 	private <T, V> MapCheckToken<T, V> attach(MapCheckToken<T, V> token, List<Token> tokens) {
@@ -83,7 +86,7 @@ public class QueueTokenCompiler implements TokenCompiler {
 			} else if (current instanceof MapCheckToken<?, ?>) {
 				current = fetchAndAttachToMapCheck((MapCheckToken<?, ?>) current, tokens);
 			} else if (isSpecial(current)) {
-				throw new CompileError("Special token is not linked to check");
+				throw new CompileError("Special token is not linked to a check");
 			}
 
 			result.add(current);
