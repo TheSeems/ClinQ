@@ -167,6 +167,6 @@ Step 2. Add the dependency
 
 ```groovy
 dependencies {
-    implementation 'com.github.theseems:ClinQ:v1.0-SNAPSHOT'
+    implementation 'com.github.theseems:ClinQ:v1.1'
 }
 ```
