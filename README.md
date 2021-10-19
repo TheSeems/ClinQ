@@ -131,12 +131,12 @@ errors.assertSame(List.of("First char should be digit"));
 ```java
 var checker = Clinq.<String>checker()
 	.notNull("Input is null")
-	.and(name->name.length()>=2)
+	.and(name -> name.length() >= 2)
 	    .error("Length should be at least 2")
-	.mapCheck(name->name.charAt(0),Character::isDigit)
+	.mapCheck(name -> name.charAt(0), Character::isDigit)
 	    .error("First char should be digit")
 	    .blocking()  // notice that we won't go further if this fails
-	.mapCheck(name->name.charAt(1),Character::isLetter)
+	.mapCheck(name -> name.charAt(1), Character::isLetter)
 	    .error("Second char should be letter");
 
 TestCheckErrors errors = new TestCheckErrors();
