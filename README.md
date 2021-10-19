@@ -62,8 +62,8 @@ var checker = ClinQ.<SampleDto>checker()
 	    .with(scores -> scores.stream().allMatch(score -> score > 0)))
     .with(dto -> dto.getName().length() == dto.getScores().size());
 
-	SampleDto one = new SampleDto("hi!", List.of(1, 2, 3));
-	Assertions.assertTrue(checker.check(one));
+SampleDto one = new SampleDto("hi!", List.of(1, 2, 3));
+Assertions.assertTrue(checker.check(one));
 ```
 
 ### Error description
