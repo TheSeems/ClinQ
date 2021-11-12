@@ -1,7 +1,7 @@
 package me.theseems.clinq.impl.checker;
 
 import lombok.Getter;
-import me.theseems.clinq.api.Checker;
+import me.theseems.clinq.api.checker.Checker;
 import me.theseems.clinq.api.MapPipe;
 import me.theseems.clinq.api.OptionalPipe;
 import me.theseems.clinq.api.check.Check;

@@ -1,6 +1,6 @@
 package me.theseems.clinq.utils;
 
-import me.theseems.clinq.api.Checker;
+import me.theseems.clinq.api.checker.Checker;
 import me.theseems.clinq.api.Clinq;
 import me.theseems.clinq.api.check.Check;
 

@@ -1,23 +1,20 @@
 package me.theseems.clinq.clinq;
 
-import me.theseems.clinq.api.compiler.error.CheckErrors;
+import me.theseems.clinq.api.Clinq;
+import me.theseems.clinq.api.checker.Checker;
+import me.theseems.clinq.api.validator.ClinqValidator;
 import me.theseems.clinq.checks.Args;
 import me.theseems.clinq.dto.BenefitDto;
 import me.theseems.clinq.test.utils.CheckUtils;
-import me.theseems.clinq.api.Checker;
-import me.theseems.clinq.api.Clinq;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-public class BenefitDtoClinQ {
-	public static final BenefitDtoClinQ INSTANCE = new BenefitDtoClinQ();
-	private static Checker<BenefitDto, BenefitDto> checker;
-
-	private BenefitDtoClinQ() {
-		checker = Clinq.<BenefitDto>checker()
-			.notNull()
-				.error("No data")
+public class BenefitDtoClinQ extends ClinqValidator<BenefitDto> {
+	@Override
+	public Checker<BenefitDto, ?> bake() {
+		var checker = Clinq.<BenefitDto>checker()
+			.notNull("No data")
 			.mapNotNull(this::amount)
 				.error("Benefit amount must be specified")
 			.mapNotNull(this::dateFrom)
@@ -40,10 +37,8 @@ public class BenefitDtoClinQ {
 			.mapCheck(this::benefitPercent, this::greaterThanZero)
 				.error("Benefit percent must be greater than zero")
 		);
-	}
 
-	public boolean check(BenefitDto commissionCalculateInDto, CheckErrors errors) {
-		return checker.check(commissionCalculateInDto, errors);
+		return checker;
 	}
 
 	private LocalDate dateFrom(BenefitDto dto) {

@@ -1,5 +1,8 @@
-package me.theseems.clinq.api;
+package me.theseems.clinq.api.checker;
 
+import me.theseems.clinq.api.Clinq;
+import me.theseems.clinq.api.MapPipe;
+import me.theseems.clinq.api.OptionalPipe;
 import me.theseems.clinq.api.check.Check;
 import me.theseems.clinq.api.compiler.error.CheckErrors;
 import me.theseems.clinq.impl.compiler.error.IgnoreCheckErrors;

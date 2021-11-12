@@ -1,11 +1,11 @@
 package me.theseems.clinq.general;
 
-import me.theseems.clinq.test.TestCheckErrors;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
 import me.theseems.clinq.api.Clinq;
 import me.theseems.clinq.checks.IntegerIs;
 import me.theseems.clinq.checks.StringMatches;
+import me.theseems.clinq.test.TestCheckErrors;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,7 @@ public class ClinqCheckerTest {
 		);
 
 		var checker =
-			Clinq.checker(Integer.class)
+			Clinq.<Integer>checker()
 				.and(i -> i % 2 == 0, i -> i % 3 == 0)
 				.map(Double::valueOf)
 				.map(d -> d / 2.0)
@@ -35,7 +35,7 @@ public class ClinqCheckerTest {
 	@Test
 	public void validateInteger_WithLogicalCheckCombination_Mapping_Pipe_Stress_Success() {
 		var checker =
-			Clinq.checker(Integer.class)
+			Clinq.<Integer>checker()
 				.and(i -> i % 2 == 0, i -> i % 3 == 0);
 
 		for (int i = 0; i < 10_000_000; i++) {
@@ -51,7 +51,7 @@ public class ClinqCheckerTest {
 	public void validateInteger_WithExternalCheck_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
 		var checker =
-			Clinq.checker(Integer.class)
+			Clinq.<Integer>checker()
 				// a prime lesser than 100
 				.and("Input should be prime less than 100", IntegerIs.prime(), i -> i < 100)
 				.with("Input should not be divisible by 2", i -> i % 2 != 0);
@@ -76,7 +76,7 @@ public class ClinqCheckerTest {
 	@Test
 	public void validateString_WithExternalCheck_Mapping_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
-		var checker = Clinq.checker(String.class)
+		var checker = Clinq.<String>checker()
 			.withBlocking("Input is empty", str -> !str.isEmpty())
 			.withBlocking("Not an email", StringMatches.pattern("[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,6}"))
 			.map(value -> value.split("@")[0])
@@ -98,7 +98,7 @@ public class ClinqCheckerTest {
 	public void validateDto_WithNestedCheckers_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
 		var checker =
-			Clinq.checker(ScoresDto.class)
+			Clinq.<ScoresDto>checker()
 				.notNull("No data")
 				.with(ScoresDto::getName, nameChecker -> nameChecker
 					.with("Name is null", Objects::nonNull)
@@ -139,14 +139,14 @@ public class ClinqCheckerTest {
 	public void validateDto_WithConditionalChecks_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
 		var shortNameChecker =
-			Clinq.checker(String.class)
+			Clinq.<String>checker()
 				.with("Short name should start with 's'",
 					name -> name.startsWith("s"))
 				.mapCheck("Short name's first char should be digit",
 					name -> name.charAt(1), Character::isDigit);
 
 		var mediumNameChecker =
-			Clinq.checker(String.class)
+			Clinq.<String>checker()
 				.with("Medium name should start with 'm'",
 					name -> name.startsWith("m"))
 				.mapCheck("Medium name's first char should be digit",
@@ -154,15 +154,15 @@ public class ClinqCheckerTest {
 				.mapCheck("Medium name's second char should be letter",
 					name -> name.charAt(2), Character::isLetter);
 
-		var dtoChecker = Clinq.checker(ScoresDto.class);
-
 		// Name checking attached
-		dtoChecker.with(ScoresDto::getName, it ->
-			it.andBlocking("Name's length should be between 1 and 3",
-					Objects::nonNull, name -> 1 <= name.length() && name.length() <= 3)
-				.when(name -> name.length() <= 2, shortNameChecker)
-				.when(name -> name.length() == 3, mediumNameChecker)
-		);
+		var dtoChecker =
+			Clinq.<ScoresDto>checker()
+				.with(ScoresDto::getName, it -> it
+					.andBlocking("Name's length should be between 1 and 3",
+						Objects::nonNull, name -> 1 <= name.length() && name.length() <= 3)
+					.when(name -> name.length() <= 2, shortNameChecker)
+					.when(name -> name.length() == 3, mediumNameChecker)
+				);
 
 		ScoresDto shortNameDto = new ScoresDto("s0", List.of());
 		ScoresDto mediumNameDto = new ScoresDto("m0a", List.of());
@@ -179,30 +179,30 @@ public class ClinqCheckerTest {
 	public void validateDto_WithConditionalChecks_ErrorToken_Success() {
 		TestCheckErrors errors = new TestCheckErrors();
 		var shortNameChecker =
-			Clinq.checker(String.class)
+			Clinq.<String>checker()
 				.with(name -> name.startsWith("s"))
-				.error("Short name should start with 's'")
+					.error("Short name should start with 's'")
 				.mapCheck(name -> name.charAt(1), Character::isDigit)
-				.error("Short name's first char should be digit");
+					.error("Short name's first char should be digit");
 
 		var mediumNameChecker =
-			Clinq.checker(String.class)
+			Clinq.<String>checker()
 				.with(name -> name.startsWith("m"))
-				.error("Medium name should start with 'm'")
+					.error("Medium name should start with 'm'")
 				.mapCheck(name -> name.charAt(1), Character::isDigit)
-				.error("Medium name's first char should be digit")
+					.error("Medium name's first char should be digit")
 				.mapCheck(name -> name.charAt(2), Character::isLetter)
-				.error("Medium name's second char should be letter");
-
-		var dtoChecker = Clinq.checker(ScoresDto.class);
+					.error("Medium name's second char should be letter");
 
 		// Name checking attached
-		dtoChecker.with(ScoresDto::getName, it ->
-			it.and(Objects::nonNull, name -> 1 <= name.length() && name.length() <= 3)
-				.error("Name's length should be between 1 and 3")
-				.when(name -> name.length() <= 2, shortNameChecker)
-				.when(name -> name.length() == 3, mediumNameChecker)
-		);
+		var dtoChecker =
+			Clinq.<ScoresDto>checker()
+				.with(ScoresDto::getName, it -> it
+					.and(Objects::nonNull, name -> 1 <= name.length() && name.length() <= 3)
+					.error("Name's length should be between 1 and 3")
+					.when(name -> name.length() <= 2, shortNameChecker)
+					.when(name -> name.length() == 3, mediumNameChecker)
+				);
 
 		ScoresDto shortNameDto = new ScoresDto("s0", List.of());
 		ScoresDto mediumNameDto = new ScoresDto("m0a", List.of());
