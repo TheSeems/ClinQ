@@ -34,6 +34,10 @@ public abstract class ClinqValidator<T> {
 		return checker.check(input, errors);
 	}
 
+	public boolean check(T input) {
+		return check(input, new IgnoreCheckErrors());
+	}
+
 	@SneakyThrows
 	public static <T> ClinqValidator<T> of(Class<? extends ClinqValidator<T>> validatorClass) {
 		return validatorClass.getConstructor().newInstance();

@@ -1,4 +1,4 @@
-package me.theseems.clinq.block;
+package me.theseems.clinq.tokens.block;
 
 import me.theseems.clinq.api.Clinq;
 import me.theseems.clinq.test.TestCheckErrors;

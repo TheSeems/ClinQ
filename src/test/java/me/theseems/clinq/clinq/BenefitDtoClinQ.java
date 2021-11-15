@@ -15,12 +15,14 @@ public class BenefitDtoClinQ extends ClinqValidator<BenefitDto> {
 	public Checker<BenefitDto, ?> bake() {
 		var checker = Clinq.<BenefitDto>checker()
 			.notNull("No data")
-			.mapNotNull(this::amount)
+			.mapNotNull(BenefitDto::getBenefitAmount)
 				.error("Benefit amount must be specified")
 			.mapNotNull(this::dateFrom)
 				.error("Date \"from\" must be specified")
 			.mapNotNull(this::dateTo)
-				.error("Date \"to\" must be specified")
+				.error("Date \"to\" must be specified");
+
+		checker = checker
 			.mapCheck(this::amount, this::greaterThanZero)
 				.error("Benefit amount must be greater than zero")
 			.and(dto -> CheckUtils.isBefore(dto.getValidFrom(), dto.getValidTo()))

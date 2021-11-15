@@ -8,32 +8,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 
 public class ClinqCheckerTest {
 	@Test
-	public void validateInteger_WithLogicalCheckCombination_Mapping_Pipe_Success() {
-		Map<Double, Boolean> coolMap = Map.of(
-			0.1, false,
-			6.0, true
-		);
-
-		var checker =
-			Clinq.<Integer>checker()
-				.and(i -> i % 2 == 0, i -> i % 3 == 0)
-				.map(Double::valueOf)
-				.map(d -> d / 2.0)
-				.pipe(value -> Optional.ofNullable(coolMap.get(value)))
-				.with(i -> i);
-
-		Assertions.assertTrue(checker.check(12));
-		Assertions.assertFalse(checker.check(3));
-	}
-
-	@Test
-	public void validateInteger_WithLogicalCheckCombination_Mapping_Pipe_Stress_Success() {
+	public void validateInteger_WithLogicalCheckCombination_Stress_Success() {
 		var checker =
 			Clinq.<Integer>checker()
 				.and(i -> i % 2 == 0, i -> i % 3 == 0);
