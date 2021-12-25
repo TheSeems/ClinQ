@@ -7,11 +7,17 @@ import me.theseems.clinq.api.compiler.error.Error;
 import me.theseems.clinq.api.compiler.exception.CompileError;
 import me.theseems.clinq.impl.check.ConfiguredCheck;
 import me.theseems.clinq.impl.compiler.visit.VisitResult;
-import me.theseems.clinq.impl.token.BlockToken;
 import me.theseems.clinq.impl.token.CheckToken;
-import me.theseems.clinq.impl.token.ErrorToken;
+import me.theseems.clinq.impl.token.CheckerToken;
 import me.theseems.clinq.impl.token.MapCheckToken;
 import me.theseems.clinq.impl.token.Token;
+import me.theseems.clinq.impl.token.WhenToken;
+import me.theseems.clinq.impl.token.special.BlockToken;
+import me.theseems.clinq.impl.token.special.condition.ConditionToken;
+import me.theseems.clinq.impl.token.special.condition.ElseToken;
+import me.theseems.clinq.impl.token.special.ErrorToken;
+import me.theseems.clinq.impl.token.special.SpecialToken;
+import me.theseems.clinq.impl.token.special.condition.ThenToken;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -34,10 +40,6 @@ public class QueueTokenCompiler implements TokenCompiler {
 		return this;
 	}
 
-	private boolean isSpecial(Token token) {
-		return token instanceof ErrorToken || token instanceof BlockToken;
-	}
-
 	private <T> CheckToken<T> attach(CheckToken<T> token, List<Token> tokens) {
 		CheckToken<T> result = token;
 		for (Token special : tokens) {
@@ -47,7 +49,7 @@ public class QueueTokenCompiler implements TokenCompiler {
 			} else if (special instanceof BlockToken) {
 				result = new CheckToken<>(ConfiguredCheck.block(result.getCheck()));
 			} else {
-				throw new IllegalStateException(
+				throw new CompileError(
 					"Special token should be either ErrorToken or BlockToken. Given: " + special);
 			}
 		}
@@ -61,7 +63,7 @@ public class QueueTokenCompiler implements TokenCompiler {
 
 	private Token fetchAndAttachToCheck(CheckToken<?> checkToken, Queue<Token> tokens) {
 		List<Token> additional = new ArrayList<>();
-		while (!tokens.isEmpty() && isSpecial(tokens.element())) {
+		while (!tokens.isEmpty() && tokens.element() instanceof SpecialToken) {
 			additional.add(tokens.remove());
 		}
 
@@ -70,11 +72,47 @@ public class QueueTokenCompiler implements TokenCompiler {
 
 	private Token fetchAndAttachToMapCheck(MapCheckToken<?, ?> mapCheckToken, Queue<Token> tokens) {
 		List<Token> additional = new ArrayList<>();
-		while (!tokens.isEmpty() && isSpecial(tokens.element())) {
+		while (!tokens.isEmpty() && tokens.element() instanceof SpecialToken) {
 			additional.add(tokens.remove());
 		}
 
 		return attach(mapCheckToken, additional);
+	}
+
+	@SuppressWarnings("unchecked")
+	private <T> Token fetchAndAttachToWhen(WhenToken<T> whenToken, Queue<Token> tokens) {
+		List<Token> additional = new ArrayList<>();
+		List<ConditionToken> conditional = new ArrayList<>();
+		while (!tokens.isEmpty() && tokens.element() instanceof SpecialToken) {
+			if (tokens.element() instanceof ConditionToken) {
+				conditional.add((ConditionToken) tokens.remove());
+			} else {
+				additional.add(tokens.remove());
+			}
+		}
+
+		ThenToken<T, T> thenToken = ThenToken.of(whenToken.getPassCheckerToken());
+		ElseToken<T, T> elseToken = ElseToken.of(whenToken.getFailCheckerToken());
+
+		for (ConditionToken conditionToken : conditional) {
+			if (conditionToken instanceof ThenToken<?, ?>) {
+				thenToken = (ThenToken<T, T>) conditionToken;
+			} else if (conditionToken instanceof ElseToken<?, ?>) {
+				elseToken = (ElseToken<T, T>) conditionToken;
+			} else {
+				throw new CompileError("Illegal conditional token found: " + conditionToken);
+			}
+		}
+
+		if (thenToken == null && elseToken == null) {
+			throw new CompileError("Neither 'then' nor 'else' tokens specified for 'when' token");
+		}
+
+		return new WhenToken<>(
+			attach(whenToken.getCheckToken(), additional),
+			thenToken != null ? new CheckerToken<>(thenToken.getChecker()) : null,
+			elseToken != null ? new CheckerToken<>(elseToken.getChecker()) : null
+		);
 	}
 
 	private Queue<Token> merge(Queue<Token> tokens) {
@@ -85,7 +123,9 @@ public class QueueTokenCompiler implements TokenCompiler {
 				current = fetchAndAttachToCheck((CheckToken<?>) current, tokens);
 			} else if (current instanceof MapCheckToken<?, ?>) {
 				current = fetchAndAttachToMapCheck((MapCheckToken<?, ?>) current, tokens);
-			} else if (isSpecial(current)) {
+			} else if (current instanceof WhenToken<?>) {
+				current = fetchAndAttachToWhen((WhenToken<?>) current, tokens);
+			} else if (current instanceof SpecialToken) {
 				throw new CompileError("Special token is not linked to a check");
 			}
 

@@ -1,5 +1,6 @@
 package me.theseems.clinq.dto;
 
+import me.theseems.clinq.api.validator.ClinqValidator;
 import me.theseems.clinq.clinq.BenefitDtoClinQ;
 import me.theseems.clinq.test.TestCheckErrors;
 import org.junit.jupiter.api.Assertions;
@@ -11,12 +12,12 @@ import java.time.LocalDate;
 public class DtoValidationTest {
 	private void assertValid(BenefitDto dto) {
 		TestCheckErrors errors = new TestCheckErrors();
-		Assertions.assertTrue(BenefitDtoClinQ.INSTANCE.check(dto, errors));
+		Assertions.assertTrue(ClinqValidator.check(BenefitDtoClinQ.class, dto, errors));
 	}
 
 	private void assertInvalid(BenefitDto dto) {
 		TestCheckErrors errors = new TestCheckErrors();
-		Assertions.assertFalse(BenefitDtoClinQ.INSTANCE.check(dto, errors));
+		Assertions.assertFalse(ClinqValidator.check(BenefitDtoClinQ.class, dto, errors));
 	}
 
 	@Test

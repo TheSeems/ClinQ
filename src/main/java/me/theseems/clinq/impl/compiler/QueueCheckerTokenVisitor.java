@@ -7,13 +7,11 @@ import me.theseems.clinq.impl.compiler.visit.VisitResult;
 import me.theseems.clinq.impl.token.CheckToken;
 import me.theseems.clinq.impl.token.CheckerToken;
 import me.theseems.clinq.impl.token.MapCheckToken;
-import me.theseems.clinq.impl.token.PipeToken;
-import me.theseems.clinq.impl.token.WhenToken;
 import me.theseems.clinq.impl.token.MapToken;
 import me.theseems.clinq.impl.token.TokenVisitor;
+import me.theseems.clinq.impl.token.WhenToken;
 
 import java.util.List;
-import java.util.Optional;
 
 @SuppressWarnings("unchecked")
 public class QueueCheckerTokenVisitor implements TokenVisitor {
@@ -34,24 +32,6 @@ public class QueueCheckerTokenVisitor implements TokenVisitor {
 		return VisitResult.builder()
 				.success(success)
 				.propagate(success || check.settings().isPropagate())
-				.errors(List.of(SimpleError.of(errorMessage)))
-				.build();
-	}
-
-	@Override
-	public <T, V> VisitResult visit(PipeToken<T, V> token) {
-		Optional<V> valueOptional = token.getPipe().produce((T) currentValue);
-
-		boolean success = valueOptional.isPresent();
-		String errorMessage = success ? null : token.getPipe().settings().getErrorMessage();
-
-		if (success) {
-			currentValue = valueOptional.get();
-		}
-
-		return VisitResult.builder()
-				.success(success)
-				.propagate(success)
 				.errors(List.of(SimpleError.of(errorMessage)))
 				.build();
 	}
@@ -81,8 +61,12 @@ public class QueueCheckerTokenVisitor implements TokenVisitor {
 			return checkResult;
 		}
 
-		if (checkResult.isSuccess()) {
-			return visit(token.getCheckerToken());
+		if (checkResult.isSuccess() && token.getPassCheckerToken() != null) {
+			return visit(token.getPassCheckerToken());
+		}
+
+		if (!checkResult.isSuccess() && token.getFailCheckerToken() != null) {
+			return visit(token.getFailCheckerToken());
 		}
 
 		return VisitResult.builder().success(true).build();

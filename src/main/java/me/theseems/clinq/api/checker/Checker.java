@@ -1,12 +1,14 @@
-package me.theseems.clinq.api;
+package me.theseems.clinq.api.checker;
 
+import me.theseems.clinq.api.Clinq;
+import me.theseems.clinq.api.MapPipe;
 import me.theseems.clinq.api.check.Check;
-import me.theseems.clinq.api.compiler.error.CheckErrors;
-import me.theseems.clinq.impl.compiler.error.IgnoreCheckErrors;
-import me.theseems.clinq.impl.token.Token;
 import me.theseems.clinq.api.check.CheckSettings;
 import me.theseems.clinq.api.compiler.TokenCompiler;
+import me.theseems.clinq.api.compiler.error.CheckErrors;
 import me.theseems.clinq.impl.check.ConfiguredCheck;
+import me.theseems.clinq.impl.compiler.error.IgnoreCheckErrors;
+import me.theseems.clinq.impl.token.Token;
 import me.theseems.clinq.utils.Checks;
 
 import java.util.Objects;
@@ -48,15 +50,39 @@ public abstract class Checker<InputType, CheckType> {
 	}
 
 	public abstract Checker<InputType, CheckType>
+	when(Check<CheckType> condition);
+
+	public abstract Checker<InputType, CheckType>
 	when(Check<CheckType> condition, Checker<CheckType, CheckType> tweak);
 
-	public abstract <PipeCheckType> Checker<InputType, PipeCheckType> map(MapPipe<CheckType, PipeCheckType> pipe);
+	public abstract Checker<InputType, CheckType>
+	whenCheck(Check<CheckType> condition, Check<CheckType> tweak);
 
-	public abstract <PipeCheckType> Checker<InputType, PipeCheckType> pipe(OptionalPipe<CheckType, PipeCheckType> pipe);
+	public abstract <PipeCheckType> Checker<InputType, PipeCheckType> map(MapPipe<CheckType, PipeCheckType> pipe);
 
 	public abstract Checker<InputType, CheckType> error(String message);
 
 	public abstract Checker<InputType, CheckType> blocking();
+
+	public Checker<InputType, CheckType> then(String message, Check<CheckType> check) {
+		return thenCheck(ConfiguredCheck.message(check, message));
+	}
+
+	public abstract Checker<InputType, CheckType> thenCheck(Check<CheckType> check);
+
+	public abstract Checker<InputType, CheckType> then(Checker<InputType, CheckType> checker);
+
+	public abstract Checker<InputType, CheckType> then(Consumer<Checker<InputType, CheckType>> checker);
+
+	public Checker<InputType, CheckType> orElse(String message, Check<CheckType> check) {
+		return orElseCheck(ConfiguredCheck.message(check, message));
+	}
+
+	public abstract Checker<InputType, CheckType> orElseCheck(Check<CheckType> check);
+
+	public abstract Checker<InputType, CheckType> orElse(Checker<InputType, CheckType> checker);
+
+	public abstract Checker<InputType, CheckType> orElse(Consumer<Checker<InputType, CheckType>> checker);
 
 	public abstract boolean check(InputType value, CheckErrors errors);
 

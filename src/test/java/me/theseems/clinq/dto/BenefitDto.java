@@ -1,21 +1,19 @@
 package me.theseems.clinq.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Value;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Data
-@AllArgsConstructor
+@Value
 public class BenefitDto {
-	private BigDecimal sum;
+	BigDecimal sum;
 
-	private LocalDate validFrom;
+	LocalDate validFrom;
 
-	private LocalDate validTo;
+	LocalDate validTo;
 
-	private BigDecimal benefitAmount;
+	BigDecimal benefitAmount;
 
-	private BigDecimal benefitPercent;
+	BigDecimal benefitPercent;
 }

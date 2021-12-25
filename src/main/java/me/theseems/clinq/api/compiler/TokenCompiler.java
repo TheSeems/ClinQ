@@ -6,7 +6,20 @@ import java.util.Queue;
 import java.util.function.Consumer;
 
 public interface TokenCompiler {
-	TokenCompiler settings(Consumer<TokenCompilerSettings> settingsConsumer);
-
+	/**
+	 * Compile tokens into a check
+	 *
+	 * @param tokens to compile for
+	 * @param <T>    of check
+	 * @return compiled check
+	 */
 	<T> CompiledCheck<T> compile(Queue<Token> tokens);
+
+	/**
+	 * Settings of the compiler
+	 *
+	 * @param settingsConsumer settings tweaker
+	 * @return compiler (chain)
+	 */
+	TokenCompiler settings(Consumer<TokenCompilerSettings> settingsConsumer);
 }

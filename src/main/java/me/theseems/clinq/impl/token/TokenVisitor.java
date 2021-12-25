@@ -5,8 +5,6 @@ import me.theseems.clinq.impl.compiler.visit.VisitResult;
 public interface TokenVisitor {
 	<T> VisitResult visit(CheckToken<T> token);
 
-	<T, V> VisitResult visit(PipeToken<T, V> token);
-
 	<T, V> VisitResult visit(MapToken<T, V> token);
 
 	<T, V> VisitResult visit(CheckerToken<T, V> token);
